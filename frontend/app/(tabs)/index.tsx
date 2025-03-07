@@ -1,74 +1,147 @@
-import { Image, StyleSheet, Platform } from 'react-native';
+import React from 'react';
+import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+const HomePage = () => {
+  // Sample trip data
+  const trips = [
+    {
+      id: 1,
+      title: 'Malaysia Trip',
+      date: 'Thu 12 January - Sun 15 January',
+      image: 'https://via.placeholder.com/100', // Replace with your Eiffel Tower image URL
+    },
+    {
+      id: 2,
+      title: 'Mars Trip',
+      date: 'Thu 12 January - Sun 15 January',
+      image: 'https://via.placeholder.com/100', // Replace with your Mars image URL
+    },
+  ];
 
-export default function HomeScreen() {
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome Nigga!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12'
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+    <View style={styles.container}>
+      {/* Header with Time */}
+      <View style={styles.header}>
+        <Text style={styles.time}>9:41</Text>
+        <Text style={styles.status}>📱🔋</Text> {/* Placeholder for signal and battery */}
+      </View>
+
+      {/* Title */}
+      <Text style={styles.title}>My Trips</Text>
+
+      {/* Tabs */}
+      <View style={styles.tabContainer}>
+        <TouchableOpacity style={styles.tabActive}>
+          <Text style={styles.tabText}>Upcoming</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.tab}>
+          <Text style={styles.tabText}>Past</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Trip Cards */}
+      {trips.map((trip) => (
+        <View key={trip.id} style={styles.card}>
+          <Image source={{ uri: trip.image }} style={styles.image} />
+          <View style={styles.cardContent}>
+            <Text style={styles.cardTitle}>{trip.title}</Text>
+            <Text style={styles.cardDate}>{trip.date}</Text>
+          </View>
+        </View>
+      ))}
+
+      {/* Bottom Chat Icon (Placeholder) */}
+      <View style={styles.chatIcon}>
+        {/* You can add an icon library like react-native-vector-icons */}
+        <Text>🤖</Text>
+      </View>
+    </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
-  titleContainer: {
+  container: {
+    flex: 1,
+    backgroundColor: '#E6F0FA', // Light blue background
+    paddingTop: 50,
+  },
+  header: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  time: {
+    fontSize: 18,
+    fontWeight: 'bold',
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
+  status: {
+    fontSize: 18,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginVertical: 20,
+  },
+  tabContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginBottom: 20,
+  },
+  tabActive: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    backgroundColor: '#D3D3D3',
+    borderRadius: 20,
+  },
+  tab: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+  },
+  tabText: {
+    fontSize: 16,
+  },
+  card: {
+    flexDirection: 'row',
+    backgroundColor: '#FFF',
+    marginHorizontal: 20,
+    marginBottom: 20,
+    borderRadius: 10,
+    padding: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 3,
+  },
+  image: {
+    width: 80,
+    height: 80,
+    borderRadius: 10,
+  },
+  cardContent: {
+    marginLeft: 10,
+    justifyContent: 'center',
+  },
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  cardDate: {
+    fontSize: 14,
+    color: '#666',
+  },
+  chatIcon: {
     position: 'absolute',
+    bottom: 20,
+    right: 20,
+    backgroundColor: '#D3D3D3',
+    borderRadius: 25,
+    width: 50,
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
+
+export default HomePage;
