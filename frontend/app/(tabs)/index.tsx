@@ -1,5 +1,7 @@
+import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import React from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacity, Pressable } from 'react-native';
 
 const HomePage = () => {
   // Sample trip data
@@ -20,12 +22,6 @@ const HomePage = () => {
 
   return (
     <View style={styles.container}>
-      {/* Header with Time */}
-      <View style={styles.header}>
-        <Text style={styles.time}>9:41</Text>
-        <Text style={styles.status}>📱🔋</Text> {/* Placeholder for signal and battery */}
-      </View>
-
       {/* Title */}
       <Text style={styles.title}>My Trips</Text>
 
@@ -49,6 +45,15 @@ const HomePage = () => {
           </View>
         </View>
       ))}
+
+      <View style={styles.fabContainer}>
+        <Pressable
+          style={styles.fab}
+          onPress={() => router.push('./add-trip')} // Add this
+        >
+          <Ionicons name="add" size={24} color="white" />
+        </Pressable>
+      </View>
 
       {/* Bottom Chat Icon (Placeholder) */}
       <View style={styles.chatIcon}>
@@ -141,6 +146,24 @@ const styles = StyleSheet.create({
     height: 50,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  fabContainer: {
+    position: 'absolute',
+    bottom: 105,
+    right: 20,
+  },
+  fab: {
+    backgroundColor: '#007AFF',
+    width: 70,
+    height: 70,
+    borderRadius: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 4, // Shadow for Android
+    shadowColor: '#000', // Shadow for iOS
+    shadowOffset: { width: 0, height: 2},
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
   },
 });
 
