@@ -1,6 +1,6 @@
 from database import app
 from flask import render_template, request, flash, redirect
-from .forms import UserForm
+from .forms.user_form import UserForm
 from database import collection
 from datetime import datetime
 
