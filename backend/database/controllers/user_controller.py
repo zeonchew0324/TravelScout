@@ -1,57 +1,71 @@
-from flask import render_template, request, flash, redirect
-from ..forms.user_form import UserForm
+from flask import request, flash, jsonify
+from ..forms.user_form import UserPreferencesForm
 from database import user_collection
 from datetime import datetime
 from bson import ObjectId
 
 def create_user():
     if request.method == 'POST':
-        form = UserForm(request.form)
-        memory = form.memory.data
+        form = UserPreferencesForm(request.form)
+        travel_style = form.travel_style.data
+        dietary_restriction = form.dietary_restriction.data
+        other_preferences = form.other_preferences.data
 
-        user_collection.insert_one({'memory': memory, 'created_at': datetime.now()})
+        user_collection.insert_one({
+            'travel_style': travel_style,
+            'dietary_restriction': dietary_restriction,
+            'other_preferences': other_preferences,
+            'created_at': datetime.now()
+        })
         flash('User created successfully!', 'success')
-        return redirect('/')    # redirect to home page
-    else:
-        form = UserForm()
-    return render_template('create_memory.html', form=form)
+        return jsonify({"success": True, "message": "User created successfully!"})
+
+    form = UserPreferencesForm()
+    return jsonify({"success": True, "message": "User read successfully!"})
 
 def read_users():
     users = []
-    for user in user_collection.find().sort("date_created", -1):
+    for user in user_collection.find().sort("created_at", -1):
         user["_id"] = str(user["_id"])
         user["created_at"] = user["created_at"].strftime("%b %d %Y %H:%M:%S")
         users.append(user)
 
-    return render_template("view_users.html", users = users)
+    return jsonify({"success": True, "message": "User read successfully!", "users": users})
 
-def update_user():
+def update_user(id):
     if request.method == "PUT":
-        form = UserForm(request.form)
-        user_name = form.name.data
-        user_description = form.description.data
-        completed = form.completed.data
+        form = UserPreferencesForm(request.form)
+        
+        update_data = {}
+        
+        if 'travel_style' in request.form and form.travel_style.data is not None:
+            update_data['travel_style'] = form.travel_style.data
+        if 'dietary_restriction' in request.form and form.dietary_restriction.data is not None:
+            update_data['dietary_restriction'] = form.dietary_restriction.data
+        if 'other_preferences' in request.form and form.other_preferences.data is not None:
+            update_data['other_preferences'] = form.other_preferences.data
+        
+        update_data['updated_at'] = datetime.now()
 
-        user_collection.find_one_and_update({"_id": ObjectId(id)}, {"$set": {
-            "name": user_name,
-            "description": user_description,
-            "completed": completed,
-            "date_created": datetime.now()
-        }})
-        flash("User successfully updated", "success")
-        return redirect("/")
-    else:
-        form = UserForm()
+        if update_data:
+            user_collection.find_one_and_update(
+                {"_id": ObjectId(id)},
+                {"$set": update_data}
+            )
+            flash("User successfully updated", "success")
+            return jsonify({"success": True, "message": "User updated successfully!"})
 
-        user = user_collection.find_one_or_404({"_id": ObjectId(id)})
-        print(user)
-        form.name.data = user.get("name", None)
-        form.description.data = user.get("description", None)
-        form.completed.data = user.get("completd", None)
+    form = UserPreferencesForm()
 
-    return render_template("add_user.html", form = form)
+    user = user_collection.find_one({"_id": ObjectId(id)})
+    print(user)
+    form.travel_style.data = user.get("travel_style", "")
+    form.dietary_restriction.data = user.get("dietary_restriction", None)
+    form.other_preferences.data = user.get("other_preferences", None)
+
+    return jsonify({"success": True, "message": "User read successfully!"})
 
 def delete_user(id):
     user_collection.find_one_and_delete({"_id": ObjectId(id)})
     flash("User successfully deleted", "success")
-    return redirect("/")
+    return jsonify({"success": True, "message": "User deleted successfully!"})

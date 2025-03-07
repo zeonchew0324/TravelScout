@@ -1,5 +1,5 @@
 from database import app
-from controllers import trip_controller
+from ..controllers import trip_controller
 
 @app.route('/create_trip', methods=['POST', 'GET'])
 def create_trip():
@@ -9,10 +9,10 @@ def create_trip():
 def read_trips():
     return trip_controller.read_trips()
 
-@app.route('/update_trip', methods=['PUT', 'GET'])
-def update_trip():
-    return trip_controller.update_trip()
+@app.route('/update_trip/<id>', methods=['PUT', 'GET'])
+def update_trip(id):
+    return trip_controller.update_trip(id)
 
-@app.route('/delete_trip', methods=['DELETE'])
-def delete_trip():
-    return trip_controller.delete_trip()
+@app.route('/delete_trip/<id>', methods=['DELETE'])
+def delete_trip(id):
+    return trip_controller.delete_trip(id)

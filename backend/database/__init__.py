@@ -22,4 +22,5 @@ try:
 except Exception as e:
     print(f"MongoDB connection failed: {e}")
     
-from backend.database.routers import trip_routes
+from .routers import trip_routes
+from .routers import user_routes
