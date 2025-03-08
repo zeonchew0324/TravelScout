@@ -13,8 +13,9 @@ import { Audio } from 'expo-av';
 import axios from 'axios';
 import Sound from 'react-native-sound';
 import RNFS from 'react-native-fs';
+import { GOOGLE_API_KEY } from '@env';
 
-const API_KEY = 'AIzaSyCmCvyAaN_ZJvly2JKA2y2b0-q-UZoYMdk'; // Replace with your Google Cloud API key
+const API_KEY = GOOGLE_API_KEY; // Replace with your Google Cloud API key
 
 const supportedLanguages = [
   { code: 'en-US', name: 'English' },
