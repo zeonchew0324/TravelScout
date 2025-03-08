@@ -11,8 +11,7 @@ import {
 } from 'react-native';
 import { Audio } from 'expo-av';
 import axios from 'axios';
-import Sound from 'react-native-sound';
-import RNFS from 'react-native-fs';
+import { decode } from 'html-entities'
 
 const API_KEY = 'AIzaSyCmCvyAaN_ZJvly2JKA2y2b0-q-UZoYMdk'; // Replace with your Google Cloud API key
 
@@ -20,12 +19,22 @@ const supportedLanguages = [
   { code: 'en-US', name: 'English' },
   { code: 'zh-CN', name: 'Chinese' },
   { code: 'es-ES', name: 'Spanish' },
+  { code: 'fr-FR', name: 'French' },
+  { code: 'de-DE', name: 'German' },
+  { code: 'it-IT', name: 'Italian' },
+  { code: 'ja-JP', name: 'Japanese' },
+  { code: 'ko-KR', name: 'Korean' },
 ];
 
 const voiceNames = {
   'en-US': 'en-US-Wavenet-D',
-  'zh-CN': 'zh-CN-Wavenet-A',
-  'es-ES': 'es-ES-Wavenet-A',
+  'zh-CN': 'cmn-CN-Wavenet-B',
+  'es-ES': 'es-ES-Wavenet-B',
+  'fr-FR': 'fr-FR-Wavenet-B',
+  'de-DE': 'de-DE-Wavenet-B',
+  'it-IT': 'it-IT-Wavenet-B',
+  'ja-JP': 'ja-JP-Wavenet-B',
+  'ko-KR': 'ko-KR-Wavenet-B',
 };
 
 export default function App() {
@@ -37,8 +46,6 @@ export default function App() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [showSourceLangModal, setShowSourceLangModal] = useState(false);
   const [showTargetLangModal, setShowTargetLangModal] = useState(false);
-
-  const volumeGainDb = 15; // Fixed volume gain in dB (adjust as needed, 0 to 15 recommended)
 
   const requestPermissions = async () => {
     const { status } = await Audio.requestPermissionsAsync();
@@ -169,12 +176,13 @@ export default function App() {
         }
       );
       const translated = response.data.data.translations[0].translatedText;
-      setTranslatedText(translated);
-      console.log('Translation successful:', translated);
-      return translated;
+      const translated_text = decode(translated);
+      setTranslatedText(translated_text);
+      console.log('Translation successful:', translated_text);
+      return translated_text;
     } catch (error) {
       console.error('Translation error:', error.response?.data || error.message);
-      setTranslatedText('Error translating text');
+      setTranslatedText('Error translating text'); // Fixed typo here
       setIsProcessing(false);
       return null;
     }
@@ -196,34 +204,24 @@ export default function App() {
         languageCode: targetLang,
         name: voiceName,
       },
-      audioConfig: {
-        audioEncoding: 'MP3',
-        pitch: 1,
-        effectsProfileId: 'small-bluetooth-speaker-class-device',
-        volumeGainDb: volumeGainDb, // Fixed volume gain applied here
-      },
+      audioConfig: { audioEncoding: 'MP3' },
     };
 
     try {
-      console.log('Sending TTS request with data:', JSON.stringify(data, null, 2));
       const response = await axios.post(
         `https://texttospeech.googleapis.com/v1/text:synthesize?key=${API_KEY}`,
         data
       );
       const audioContent = response.data.audioContent;
       if (!audioContent) {
-        console.error('No audio content returned from TTS API. Response:', response.data);
+        console.error('No audio content returned from TTS API');
         return null;
       }
       console.log('Speech synthesized successfully, audio length:', audioContent.length);
       return audioContent;
     } catch (error) {
-      console.error('Speech synthesis error:', {
-        message: error.message,
-        status: error.response?.status,
-        data: error.response?.data,
-      });
-      Alert.alert('Error', `Failed to synthesize speech: ${error.message}. Check console.`);
+      console.error('Speech synthesis error:', error.response?.data || error.message);
+      Alert.alert('Error', 'Failed to synthesize speech. Check console for details.');
       return null;
     }
   };
@@ -233,39 +231,23 @@ export default function App() {
       console.log('No audio to play');
       return;
     }
+    const sound = new Audio.Sound();
     try {
-        // Save the audio to a temporary file
-        const audioPath = `${RNFS.TemporaryDirectoryPath}tts.mp3`;
-        await RNFS.writeFile(audioPath, base64Audio, 'base64');
-    
-        // Play the audio using react-native-sound
-        const sound = new Sound(audioPath, '', (error) => {
-          if (error) {
-            console.error('Failed to load sound:', error);
-            return;
-          }
-    
-          // Set volume to maximum (1.0 is the max for react-native-sound)
-          sound.setVolume(1.0);
-          sound.play((success) => {
-            if (success) {
-              console.log('Audio played successfully');
-            } else {
-              console.error('Playback failed');
-            }
-            // Clean up the temporary file
-            RNFS.unlink(audioPath).catch((err) =>
-              console.log('Failed to delete temp file:', err)
-            );
-            sound.release(); // Free memory
-          });
-        });
-    
-        return sound; // Return the sound object for further control if needed
-      } catch (error) {
-        console.error('Error playing speech:', error);
-        return null;
-      }
+      // Optimize audio mode for playback
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: false,
+      });
+      await sound.loadAsync({
+        uri: `data:audio/mp3;base64,${base64Audio}`,
+      });
+      console.log('Audio loaded successfully');
+      await sound.setVolumeAsync(1.0);
+      await sound.playAsync();
+      console.log('Audio playing');
+    } catch (error) {
+      console.error('Error playing audio:', error.message);
+      Alert.alert('Error', 'Failed to play audio. Check console for details.');
+    }
   };
 
   const processAudio = async (audioUri) => {
@@ -359,7 +341,9 @@ export default function App() {
           <Text style={styles.playButtonText}>▶</Text>
         </TouchableOpacity>
       </View>
-      {isProcessing && <Text style={styles.processingText}>Processing...</Text>}
+      {isProcessing && (
+        <Text style={styles.processingText}>Processing...</Text>
+      )}
 
       {/* Source Language Modal */}
       <Modal
