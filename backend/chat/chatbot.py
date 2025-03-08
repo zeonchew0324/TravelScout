@@ -7,7 +7,4 @@ class Chatbot():
         self.llm = LLMClient()
 
     def get_response(self, prompt):
-        memory_queue = Queue()
-        reply_queue = Queue()
-
-        
+        pass
