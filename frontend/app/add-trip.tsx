@@ -76,7 +76,7 @@ export default function AddTripScreen() {
     longitudeDelta: 0.0421,
   });
   const [marker, setMarker] = useState<{ latitude: number; longitude: number } | null>(null);
-  const [mapModalVisible, setMapModalVisible] = useState(false);
+
 
   // Calendar-related states
   const [calendarModalVisible, setCalendarModalVisible] = useState(false);
@@ -158,6 +158,16 @@ export default function AddTripScreen() {
     return null;
   };
 
+  //List of popular cities
+  const popularDestinations = [
+    'New York, USA', 'London, UK', 'Paris, France', 'Tokyo, Japan', 
+    'Singapore', 'Dubai, UAE', 'Rome, Italy'
+  ];
+
+  //Destination Dropdown
+  const [isDestinationFocused, setIsDestinationFocused] = useState(false);
+
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -171,87 +181,67 @@ export default function AddTripScreen() {
         <View style={styles.card}>
           {/* Destination with Map Selection */}
           <Text style={styles.label}>Destination</Text>
-          <TouchableOpacity onPress={() => setMapModalVisible(true)}>
-            <TextInput
-              style={styles.input}
-              placeholder="Tap to select destination on map"
-              value={formData.destination}
-              editable={false} // Disable direct editing
+        
+          <Dropdown
+            style={[styles.dropdown, isDestinationFocused && { borderColor: '#007AFF' }]}
+            placeholderStyle={styles.placeholderStyle}
+            selectedTextStyle={styles.selectedTextStyle}
+            iconStyle={styles.iconStyle}
+            data={popularDestinations.map((city) => ({ label: city, value: city }))}
+            maxHeight={400}
+            labelField="label"
+            valueField="value"
+            placeholder={!isDestinationFocused ? 'Select Destination' : '...'}
+            value={formData.destination}
+            onFocus={() => setIsDestinationFocused(true)}
+            onBlur={() => setIsDestinationFocused(false)}
+            onChange={(item) => {
+                handleChange('destination', item.value);
+                setIsDestinationFocused(false);
+            }}
+            renderLeftIcon={() => (
+                <AntDesign
+                style={styles.icon}
+                color={isDestinationFocused ? '#007AFF' : 'black'}
+                name="enviromento" 
+                size={20}
+                />
+            )}
             />
-          </TouchableOpacity>
 
-          {/* Map Modal */}
-          <Modal visible={mapModalVisible} animationType="slide">
-            <View style={styles.modalContainer}>
-              <MapView
-                style={styles.map}
-                region={mapRegion}
-                onPress={handleMapPress}
-              >
-                {marker && (
-                  <Marker
-                    coordinate={marker}
-                    title="Selected Destination"
-                  />
-                )}
-              </MapView>
-              <Button
-                title="Confirm Destination"
-                onPress={() => setMapModalVisible(false)}
-                color="#007AFF"
-              />
-              <Button
-                title="Cancel"
-                onPress={() => {
-                  setMarker(null);
-                  handleChange('destination', '');
-                  setMapModalVisible(false);
-                }}
-                color="#FF3B30"
-              />
-            </View>
-          </Modal>
-
+    
           {/* Date with Calendar Picker */}
           <Text style={styles.label}>Date (e.g., Thu 12 Jan - Sun 15 Jan)</Text>
           <TouchableOpacity onPress={() => setCalendarModalVisible(true)}>
-            <TextInput
-              style={styles.input}
-              placeholder="Tap to select date range"
-              value={formData.date}
-              editable={false}
-            />
+            <View pointerEvents='none'>
+                <TextInput
+                style={styles.input}
+                placeholder="Tap to select date range"
+                value={formData.date}
+                editable={false}
+                />
+            </View>
           </TouchableOpacity>
 
           {/* Calendar Modal */}
-          <Modal visible={calendarModalVisible} animationType="slide">
-            <View style={styles.modalContainer}>
-              <CalendarPicker
-                allowRangeSelection={true}
-                minDate={new Date()} // Start from today
-                maxDate={new Date(new Date().setFullYear(new Date().getFullYear() + 1))} // Up to 1 year
-                onDateChange={onDateChange}
-                selectedDayColor="#007AFF"
-                selectedDayTextColor="#FFFFFF"
-                todayBackgroundColor="#E6F0FA"
-              />
-              <Button
-                title="Confirm Date Range"
-                onPress={() => setCalendarModalVisible(false)}
-                color="#007AFF"
-              />
-              <Button
-                title="Cancel"
-                onPress={() => {
-                  setSelectedStartDate(null);
-                  setSelectedEndDate(null);
-                  handleChange('date', '');
-                  setCalendarModalVisible(false);
-                }}
-                color="#FF3B30"
-              />
+          <Modal visible={calendarModalVisible} animationType="slide" transparent={true}>
+            <View style={styles.modalOverlay}>
+                <View style={styles.modalContainer}>
+                <CalendarPicker
+                    allowRangeSelection={true}
+                    minDate={new Date()}
+                    maxDate={new Date(new Date().setFullYear(new Date().getFullYear() + 1))}
+                    onDateChange={onDateChange}
+                    selectedDayColor="#007AFF"
+                    selectedDayTextColor="#FFFFFF"
+                    todayBackgroundColor="#E6F0FA"
+                />
+                <Button title="Confirm Date Range" onPress={() => setCalendarModalVisible(false)} />
+                <Button title="Cancel" onPress={() => setCalendarModalVisible(false)} />
+                </View>
             </View>
-          </Modal>
+        </Modal>
+
 
           {/* Group Type */}
           <Text style={styles.label}>Group Type</Text>
@@ -451,7 +441,15 @@ const styles = StyleSheet.create({
     height: '80%',
   },
   modalContainer: {
+    backgroundColor: 'white',
     flex: 1,
     padding: 20,
+    marginTop: 40,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)', 
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
