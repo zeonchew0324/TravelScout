@@ -66,18 +66,12 @@ class Chatbot:
             memory = prompt.get("memory", [])  # List of preferences
             user_query = prompt.get("user_query", "")
 
-            # Debug: Print input data
-            print(f"Input - Itinerary: {itinerary}")
-            print(f"Input - Memory: {memory}")
-            print(f"Input - User Query: {user_query}")
-
             # Debug: Print formatted prompt before sending to LLM
             formatted_prompt = (
                 prompt_base.replace("Current Itinerary: ", f"Current Itinerary: {json.dumps(itinerary)}\n\n")
                 .replace("Memory (up to 15 preferences): ", f"Memory (up to 15 preferences): {json.dumps(memory)}\n\n")
                 .replace("User Query: ", f"User Query: {user_query}\n\n")
             )
-            print(f"Formatted Prompt: {formatted_prompt}")
 
             # Run the chain with the input data
             response = self.chain.invoke({
@@ -85,9 +79,6 @@ class Chatbot:
                 "memory": memory,
                 "user_query": user_query
             })
-
-            # Debug: Print raw response before JSON parsing
-            print(f"Raw Response: {response.content if hasattr(response, 'content') else response}")
 
             # Ensure the response is a dictionary
             if not isinstance(response, dict):
