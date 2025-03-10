@@ -1,17 +1,46 @@
 import { StyleSheet, Image, Platform, View, Text, TouchableOpacity, TextInput, ScrollView} from 'react-native';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import axios from 'axios';
 
+const API_URL = "http://127.0.0.1:5000";
+const sessionId = "b81de319-6f9e-48e8-a212-2429f720d85a";
 
 export default function TabTwoScreen() {
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState<string[]>([]);
 
-  const handleSend = () => {
-    if (message.trim()) {
-      setMessages([...messages, `You: ${message}`, `Bot: ${message}`]);
-      setMessage(''); 
+  useEffect(() => {
+    axios
+      .get(`${API_URL}/chat/history/${sessionId}`)
+      .then(response => {
+        console.log("Chat history response:", response.data); 
+  
+        if (response.data.messages) {
+          setMessages(response.data.messages.map(msg => `${msg.sender}: ${msg.content}`));
+        } else {
+          console.error("No messages found in response:", response.data);
+        }
+      })
+      .catch(error => console.error("Error fetching chat history:", error.response ? error.response.data : error));
+  }, []);
+  
+
+  const handleSend = async () => {
+    if (!message.trim()) return;
+  
+    try {
+      const response = await axios.post(
+        `${API_URL}/chat/message/${sessionId}`,
+        { content: message },
+        { headers: { "Content-Type": "application/json" } }
+      );
+  
+      setMessages([...messages, `You: ${message}`, `Bot: ${response.data.reply || "..."}`]);
+      setMessage("");
+    } catch (error) {
+      console.error("Error sending message:", error);
     }
   };
 
