@@ -14,6 +14,7 @@ mongodb_client = MongoClient(uri)
 db = mongodb_client.travelscout
 user_collection = db.users
 trip_collection = db.trips
+chat_history_collection = db.chat_history
 
 # Test the connection
 try:
@@ -24,3 +25,4 @@ except Exception as e:
     
 from .routers import trip_routes
 from .routers import user_routes
+from .routers import chat_routes
