@@ -68,7 +68,6 @@ def get_chat_history(session_id):
     if not chat_json:
         return jsonify({"error": "Invalid session ID"}), 404
 
-    # Reconstruct messages for response
     messages = [
         {"role": msg['sender'], "message": msg['content'], "timestamp": msg['timestamp']}
         for msg in chat_json['messages']
