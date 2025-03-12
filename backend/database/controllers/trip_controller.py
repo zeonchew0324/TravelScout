@@ -1,8 +1,13 @@
+import sys
+import os
 from flask import request, flash, jsonify
 from ..forms.trip_form import TripForm
 from database import trip_collection
 from datetime import datetime
 from bson import ObjectId
+sys.path.append(os.path.abspath("../../"))
+from prompt.prompts import init_itinerary
+import json 
 
 def create_trip():
     if request.method == 'POST':
@@ -16,19 +21,27 @@ def create_trip():
         from_datetime = datetime.combine(from_date, datetime.min.time()) if from_date else None
         to_datetime = datetime.combine(to_date, datetime.min.time()) if to_date else None
 
-        trip_collection.insert_one({
+        trip_data = {
             'destination': destination,
             'from_date': from_datetime,
             'to_date': to_datetime,
             'companions': companions,
             'budget_preference': budget_preference,
             'created_at': datetime.now()
-        })
-        flash('Trip created successfully!', 'success')
-        return jsonify({"success": True, "message": "Trip created successfully!"})
+        }
+
+        # Generate itinerary
+        itinerary_json = init_itinerary(trip_data)  # AI-generated itinerary
+        
+        trip_data['itinerary'] = itinerary_json # Store the generated itinerary
+
+        trip_collection.insert_one(trip_data)  # Save trip to DB
+
+        flash('Trip created successfully with AI itinerary!', 'success')
+        return jsonify({"success": True, "message": "Trip created successfully!", "itinerary": itinerary_json})
 
     form = TripForm()
-    return jsonify({"success": True, "message": "Trip read successfully!"})
+    return jsonify({"success": False, "message": "Invalid request"})
 
 def read_trips():
     trips = []
@@ -58,6 +71,8 @@ def update_trip(id):
             update_data['companions'] = form.companions.data
         if 'budget_preference' in request.form and form.budget_preference.data is not None:
             update_data['budget_preference'] = form.budget_preference.data
+        if 'itinerary' in request.form and form.itinerary.data is not None:
+            update_data['itinerary'] = form.itinerary.data
         
         update_data['updated_at'] = datetime.now()
 
@@ -81,6 +96,7 @@ def update_trip(id):
     form.to_date.data = trip.get("to_date", None)
     form.companions.data = trip.get("companions", "")
     form.budget_preference.data = trip.get("budget_preference", 0)
+    form.itinerary.data = trip.get("itinerary", "")
 
     return jsonify({"success": True, "message": "Trip read successfully!"})
 
