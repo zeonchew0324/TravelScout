@@ -12,7 +12,9 @@ app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 # setup mongodb
 mongodb_client = MongoClient(uri)
 db = mongodb_client.travelscout
-collection = db.users
+user_collection = db.users
+trip_collection = db.trips
+chat_history_collection = db.chat_history
 
 # Test the connection
 try:
@@ -21,4 +23,6 @@ try:
 except Exception as e:
     print(f"MongoDB connection failed: {e}")
     
-from database import routes
+from .routers import trip_routes
+from .routers import user_routes
+from .routers import chat_routes

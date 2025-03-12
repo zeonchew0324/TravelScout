@@ -1,5 +1,8 @@
 {
   "expo": {
+    "permissions": [
+      "location"
+    ],
     "name": "TravelScout",
     "slug": "TravelScout",
     "version": "1.0.0",
