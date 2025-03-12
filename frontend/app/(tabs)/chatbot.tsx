@@ -1,19 +1,35 @@
 import { StyleSheet, Image, Platform, View, Text, TouchableOpacity, TextInput, ScrollView} from 'react-native';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-
+import { useTrips } from '../tripsContext';
 
 export default function TabTwoScreen() {
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState<string[]>([]);
+  const { trips, addTrip } = useTrips();
+
+  useEffect(() => {
+    setMessages(['Bot: Hi there! How can I help you today?']);
+  }, []);
 
   const handleSend = () => {
-    if (message.trim()) {
-      setMessages([...messages, `You: ${message}`, `Bot: ${message}`]);
-      setMessage(''); 
-    }
-  };
+      if (message.trim()) {
+        setMessages([...messages, `You: ${message}`, `Bot: Got it!`]);
+  
+        // Add a new trip when Send is clicked
+        const newTrip = {
+          id: 3,
+          title: `New Trip`,
+          date: 'Fri 20 January - Mon 23 January',
+          image: 'https://via.placeholder.com/100', // Replace with an actual image URL
+        };
+  
+        addTrip(newTrip);
+  
+        setMessage('');
+      }
+    };
 
   return (
     <View style={styles.container}>

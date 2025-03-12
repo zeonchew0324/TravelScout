@@ -2,23 +2,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity, Pressable } from 'react-native';
+import { useTrips } from '../tripsContext'; // Import useTrips
 
 const HomePage = () => {
-  // Sample trip data
-  const trips = [
-    {
-      id: 1,
-      title: 'Malaysia Trip',
-      date: 'Thu 12 January - Sun 15 January',
-      image: 'https://via.placeholder.com/100', // Replace with your Eiffel Tower image URL
-    },
-    {
-      id: 2,
-      title: 'Mars Trip',
-      date: 'Thu 12 January - Sun 15 January',
-      image: 'https://via.placeholder.com/100', // Replace with your Mars image URL
-    },
-  ];
+  const { trips } = useTrips(); // Fetch trips from the context
 
   return (
     <View style={styles.container}>
@@ -49,15 +36,14 @@ const HomePage = () => {
       <View style={styles.fabContainer}>
         <Pressable
           style={styles.fab}
-          onPress={() => router.push('./add-trip')} // Add this
+          onPress={() => router.push('./add-trip')}
         >
           <Ionicons name="add" size={24} color="white" />
         </Pressable>
       </View>
 
-      {/* Bottom Chat Icon (Placeholder) */}
+      {/* Bottom Chat Icon */}
       <View style={styles.chatIcon}>
-        {/* You can add an icon library like react-native-vector-icons */}
         <Text>🤖</Text>
       </View>
     </View>
@@ -67,20 +53,8 @@ const HomePage = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#E6F0FA', // Light blue background
+    backgroundColor: '#E6F0FA',
     paddingTop: 50,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-  },
-  time: {
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  status: {
-    fontSize: 18,
   },
   title: {
     fontSize: 24,
@@ -159,9 +133,9 @@ const styles = StyleSheet.create({
     borderRadius: 28,
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 4, // Shadow for Android
-    shadowColor: '#000', // Shadow for iOS
-    shadowOffset: { width: 0, height: 2},
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
   },

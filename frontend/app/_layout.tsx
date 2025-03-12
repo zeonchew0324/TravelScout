@@ -8,6 +8,7 @@ import 'react-native-reanimated';
 import { Pressable, View, StyleSheet } from 'react-native';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { Ionicons } from '@expo/vector-icons'; // Install this package for icons
+import { TripProvider } from './tripsContext'
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -30,22 +31,25 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="auto" />
-      {/* Add Trip Button */}
-      {/* <View style={styles.fabContainer}>
-        <Pressable
-          style={styles.fab}
-          onPress={() => router.push('./add-trip')} // Add this
-        >
-          <Ionicons name="add" size={24} color="white" />
-        </Pressable>
-      </View> */}
-    </ThemeProvider>
+    <TripProvider>
+      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="+not-found" />
+        </Stack>
+        <StatusBar style="auto" />
+
+        {/* Add Trip Button */}
+        {/* <View style={styles.fabContainer}>
+          <Pressable
+            style={styles.fab}
+            onPress={() => router.push('./add-trip')} // Add this
+          >
+            <Ionicons name="add" size={24} color="white" />
+          </Pressable>
+        </View> */}
+      </ThemeProvider>
+    </TripProvider>
   );
 }
 
