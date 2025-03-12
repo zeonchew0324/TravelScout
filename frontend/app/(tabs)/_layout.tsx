@@ -43,6 +43,15 @@ export default function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="translation"
+        options={{
+          title: 'Translation',
+          tabBarIcon: ({ color, size }) => (
+            <MaterialIcons name="translate" size={size} color={color} /> // Alternative icon
+          ),
+        }}
+      />
     </Tabs>
   );
 }
