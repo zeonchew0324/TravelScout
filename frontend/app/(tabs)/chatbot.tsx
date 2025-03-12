@@ -1,17 +1,53 @@
-import { StyleSheet, Image, Platform, View, Text, TouchableOpacity, TextInput, ScrollView} from 'react-native';
-import React, { useState } from 'react';
+import { StyleSheet, Platform, View, Text, TouchableOpacity, TextInput, ScrollView } from 'react-native';
+import React, { useState, useEffect } from 'react';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 
-
 export default function TabTwoScreen() {
   const [message, setMessage] = useState('');
-  const [messages, setMessages] = useState<string[]>([]);
+  const [messages, setMessages] = useState([]);
+  const sessionId = "e5e96868-69ba-49a4-a34e-1c969f0b0407"; // Hardcoded for now; ideally passed as a prop or from context
+
+  // Fetch chat history from backend when component mounts
+  useEffect(() => {
+    const fetchChatHistory = async () => {
+      try {
+        const response = await fetch(`http://127.0.0.1:5000/chat/history/${sessionId}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch chat history');
+        }
+
+        const data = await response.json();
+        if (data.status === 'success') {
+          // Map backend data to frontend format
+          const formattedMessages = data.history.map(msg => 
+            `${msg.role === 'user' ? 'You' : 'Bot'}: ${msg.message}`
+          );
+          setMessages(formattedMessages);
+        } else {
+          console.error('Error from backend:', data.error);
+        }
+      } catch (error) {
+        console.error('Fetch error:', error);
+      }
+    };
+
+    fetchChatHistory();
+  }, [sessionId]); // Dependency array includes sessionId; re-fetch if it changes
 
   const handleSend = () => {
     if (message.trim()) {
-      setMessages([...messages, `You: ${message}`, `Bot: ${message}`]);
-      setMessage(''); 
+      const userMessage = `You: ${message}`;
+      const botMessage = `Bot: ${message}`; // Placeholder; replace with actual bot response later
+      setMessages([...messages, userMessage, botMessage]);
+      setMessage('');
+      // Optionally, send the message to the backend here (POST request)
     }
   };
 
@@ -49,11 +85,10 @@ export default function TabTwoScreen() {
   );
 }
 
-
 const styles = StyleSheet.create({
   container: {
     height: '92%',
-    backgroundColor: '#E6F0FA', 
+    backgroundColor: '#E6F0FA',
     paddingTop: 50,
   },
   chatbotContainer: {
@@ -76,7 +111,7 @@ const styles = StyleSheet.create({
   },
   userMessage: {
     alignSelf: 'flex-end',
-    backgroundColor: '#DCF8C6', 
+    backgroundColor: '#DCF8C6',
     padding: 10,
     borderRadius: 10,
     marginVertical: 5,
@@ -84,7 +119,7 @@ const styles = StyleSheet.create({
   },
   botMessage: {
     alignSelf: 'flex-start',
-    backgroundColor: '#E4E6EB', // Light gray for bot messages
+    backgroundColor: '#E4E6EB',
     padding: 10,
     borderRadius: 10,
     marginVertical: 5,
@@ -114,7 +149,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   sendButton: {
-    backgroundColor: '#4CAF50', 
+    backgroundColor: '#4CAF50',
     padding: 10,
     borderRadius: 50,
     justifyContent: 'center',
