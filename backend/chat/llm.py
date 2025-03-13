@@ -7,7 +7,7 @@ from langchain_deepseek import ChatDeepSeek
 
 
 # Load environment variables from .env file
-load_dotenv(r'C:\Users\User\OneDrive\Desktop\TravelScout\.env')
+load_dotenv(r'C:\Users\s1701\TravelScout\.env')
 
 class LLMClient:
 
