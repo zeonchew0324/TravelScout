@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from flask_wtf import FlaskForm
-from wtforms import StringField, SelectField, DateField, SubmitField
+from wtforms import StringField, SelectField, DateField, SubmitField, HiddenField
 from wtforms.validators import DataRequired, Length
 
 class TripForm(FlaskForm):
@@ -47,6 +47,11 @@ class TripForm(FlaskForm):
             ('2000+', '2000+')
         ],
         validators=[DataRequired(message="Please select a budget range.")]
+    )
+
+    itinerary = HiddenField(
+        'itinerary',
+        default=None
     )
     
     # Submit button
