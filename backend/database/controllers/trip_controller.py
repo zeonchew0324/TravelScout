@@ -113,3 +113,12 @@ def delete_trip(id):
     trip_collection.find_one_and_delete({"_id": ObjectId(id)})
     flash("Trip successfully deleted", "success")
     return jsonify({"success": True, "message": "Trip deleted successfully!"})
+
+def update_itinerary(id, updated_itinerary_data):
+    updated_itinerary = updated_itinerary_data['itinerary']
+    trip_collection.find_one_and_update(
+        {"_id": ObjectId(id)},
+        {"$set": {"itinerary": updated_itinerary}}
+    )
+    flash("Trip itinerary successfully updated", "success")
+    return jsonify({"success": True, "message": "Trip itinerary updated successfully!"})

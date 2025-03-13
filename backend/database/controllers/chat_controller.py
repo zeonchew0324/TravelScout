@@ -1,9 +1,11 @@
 import uuid
-from flask import jsonify
-
+from flask import request, flash, jsonify
+from ..forms.trip_form import TripForm
+from database import trip_collection
+from datetime import datetime
+from bson import ObjectId
 from chat import Chat, Message
 from database import chat_history_collection
-from datetime import datetime
 
 WELCOME_MESSAGE = "Hello! I'm your travel assistant. How can I help you today? (e.g., suggest a destination, plan a trip, or answer travel questions)"
 
