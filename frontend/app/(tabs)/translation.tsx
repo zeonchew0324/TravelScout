@@ -423,6 +423,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 40,
     alignItems: 'center',
+    marginTop: 40,
   },
   headerText: {
     fontSize: 28,
