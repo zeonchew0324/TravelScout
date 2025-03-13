@@ -10,13 +10,28 @@ const HomePage = () => {
       id: 1,
       title: 'Malaysia Trip',
       date: 'Thu 12 January - Sun 15 January',
-      image: 'https://via.placeholder.com/100', // Replace with your Eiffel Tower image URL
+      image: 'https://via.placeholder.com/100',
+      description: 'A fun-filled adventure exploring Malaysia’s vibrant culture and food.',
+      schedule: [
+        { time: '08:00 AM', activity: 'Breakfast at a local café' },
+        { time: '10:00 AM', activity: 'Visit Petronas Towers' },
+        { time: '01:00 PM', activity: 'Lunch at Jalan Alor' },
+        { time: '03:00 PM', activity: 'Batu Caves exploration' },
+        { time: '07:00 PM', activity: 'Dinner and night market stroll' },
+      ],
     },
     {
       id: 2,
       title: 'Mars Trip',
       date: 'Thu 12 January - Sun 15 January',
-      image: 'https://via.placeholder.com/100', // Replace with your Mars image URL
+      image: 'https://via.placeholder.com/100', 
+      schedule: [
+        { time: '08:00 ', activity: 'Breakfast at a local café' },
+        { time: '10:00 ', activity: 'Visit Petronas Towers' },
+        { time: '13:00 ', activity: 'Lunch at Jalan Alor' },
+        { time: '16:00 ', activity: 'Batu Caves exploration' },
+        { time: '19:00 ', activity: 'Dinner and night market stroll' },
+      ],
     },
   ];
 
@@ -37,13 +52,18 @@ const HomePage = () => {
 
       {/* Trip Cards */}
       {trips.map((trip) => (
-        <View key={trip.id} style={styles.card}>
-          <Image source={{ uri: trip.image }} style={styles.image} />
-          <View style={styles.cardContent}>
-            <Text style={styles.cardTitle}>{trip.title}</Text>
-            <Text style={styles.cardDate}>{trip.date}</Text>
+        <Pressable
+          key={trip.id}
+          onPress={() => router.push(`/trip_details/tripDetails?id=${trip.id}`)} 
+        >
+          <View key={trip.id} style={styles.card}>
+            <Image source={{ uri: trip.image }} style={styles.image} />
+            <View style={styles.cardContent}>
+              <Text style={styles.cardTitle}>{trip.title}</Text>
+              <Text style={styles.cardDate}>{trip.date}</Text>
+            </View>
           </View>
-        </View>
+        </Pressable>
       ))}
 
       <View style={styles.fabContainer}>
