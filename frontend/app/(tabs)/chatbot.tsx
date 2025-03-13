@@ -6,7 +6,7 @@ import { ThemedView } from '@/components/ThemedView';
 export default function TabTwoScreen() {
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]);
-  const sessionId = "e5e96868-69ba-49a4-a34e-1c969f0b0407"; // Hardcoded for now; ideally passed as a prop or from context
+  const sessionId = "b81de319-6f9e-48e8-a212-2429f720d85a"; // Hardcoded for now; ideally passed as a prop or from context
 
   // Fetch chat history from backend when component mounts
   useEffect(() => {
@@ -41,13 +41,45 @@ export default function TabTwoScreen() {
     fetchChatHistory();
   }, [sessionId]); // Dependency array includes sessionId; re-fetch if it changes
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (message.trim()) {
+      // Add user's message to the chat immediately
       const userMessage = `You: ${message}`;
-      const botMessage = `Bot: ${message}`; // Placeholder; replace with actual bot response later
-      setMessages([...messages, userMessage, botMessage]);
-      setMessage('');
-      // Optionally, send the message to the backend here (POST request)
+      setMessages((prevMessages) => [...prevMessages, userMessage]);
+      setMessage(''); // Clear input field
+  
+      try {
+        // Send message to backend
+        const response = await fetch(`https://travelscout-87zx.onrender.com/chat/message/${sessionId}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            sessionId: sessionId,  // Include sessionId if required by your Flask route
+            content: message,     // Match backend's expected 'content' key
+          }),
+        });
+  
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+  
+        const data = await response.json();
+        if (data.status === 'success') {
+          // Add bot's response to the chat
+          const botMessage = `Bot: ${data.response}`;
+          setMessages((prevMessages) => [...prevMessages, botMessage]);
+        } else {
+          console.error('Backend error:', data.error);
+          const errorMessage = `Bot: Sorry, something went wrong: ${data.error}`;
+          setMessages((prevMessages) => [...prevMessages, errorMessage]);
+        }
+      } catch (error) {
+        console.error('Fetch error:', error);
+        const errorMessage = `Bot: Oops, I couldn’t connect to the server.`;
+        setMessages((prevMessages) => [...prevMessages, errorMessage]);
+      }
     }
   };
 
