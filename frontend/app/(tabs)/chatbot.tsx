@@ -12,7 +12,7 @@ export default function TabTwoScreen() {
   useEffect(() => {
     const fetchChatHistory = async () => {
       try {
-        const response = await fetch(`http://127.0.0.1:5000/chat/history/${sessionId}`, {
+        const response = await fetch(`https://travelscout-87zx.onrender.com/chat/history/${sessionId}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
