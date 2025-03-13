@@ -100,6 +100,15 @@ def update_trip(id):
 
     return jsonify({"success": True, "message": "Trip read successfully!"})
 
+def read_trip(id):
+    trip = trip_collection.find_one({"_id": ObjectId(id)})
+    if not trip:
+        return jsonify({"success": False, "message": "Trip not found"}), 404
+
+    trip["_id"] = str(trip["_id"])
+    trip["created_at"] = trip["created_at"].strftime("%b %d %Y %H:%M:%S")
+    return jsonify({"success": True, "message": "Trip read successfully!", "trip": trip})
+
 def delete_trip(id):
     trip_collection.find_one_and_delete({"_id": ObjectId(id)})
     flash("Trip successfully deleted", "success")

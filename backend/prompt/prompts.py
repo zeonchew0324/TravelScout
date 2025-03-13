@@ -4,6 +4,8 @@ sys.path.append(os.path.abspath("../"))
 from chat import llm 
 from database.controllers import trip_controller, user_controller 
 import json
+from app import app
+import requests as response
 
 def init_prompt(trip):
 
@@ -20,9 +22,21 @@ def init_prompt(trip):
     return info.format(user, trip) + "\n" + instructions + "\n" + format
 
 
-def view_prompt():
-    trip = json.loads(trip_controller.read_trips())["itinerary"]
-    # trip = init_itinerary()
+def view_prompt(trip_id):
+    #trip = json.loads(trip_controller.read_trip(trip_id))["itinerary"]
+
+    # Ensure the response is properly converted to JSON
+    try:
+        trip_data = response.json()  # Use .json() to directly parse response (if it's a Flask Response)
+        itinerary = trip_data.get("trip", {}).get("itinerary", {})  # Extract itinerary
+    except AttributeError:
+        # Fallback if .json() isn't available (e.g., response is already a dictionary or string)
+        try:
+            trip_data = json.loads(response)  # Try loading as JSON string
+            itinerary = trip_data.get("trip", {}).get("itinerary", {})
+        except json.JSONDecodeError:
+            print("Error: Invalid JSON format")
+            return ""
 
     info = "You are a helpful assistant for a travelling app."
     instructions = "Assume currency is official currency of the destination, also include the total cost of the trip at the end by adding up all total day costs. Only give the itinerary and no other comments."
@@ -37,48 +51,22 @@ def init_itinerary(trip): #make as json
     return ai.queryjson(init_prompt(trip))
 
 
-def view_itinerary(): #change to text
+def view_itinerary(trip_id): #change to text
     ai = llm.LLMClient()
-    return ai.query(view_prompt())
+    return ai.query(view_prompt(trip_id))
 
-# Main method with mock data for testing
+
 def main():
-    # Mock user data
-    mock_user = "travel style = packed"
-
-    # Mock trip data (mimics the structure of trip_controller.read_trips())
-    mock_trip = {
-        "success": True,
-        "message": "Trips read successfully!",
-        "trips": [{
-            "destination": "Austria",
-            "from_date": "2025-03-15",
-            "to_date": "2025-03-22",
-            "companions": "Friends",
-            "budget_preference": "2000+",
-            "itinerary": None,
-            "created_at": "2025-03-12 10:00:00"
-        }]
-    }
-    mock_trip_json = json.dumps(mock_trip)
-
-    # Temporarily override controller methods with mock data
-    original_read_users = user_controller.read_users
-    original_read_trips = trip_controller.read_trips
-    user_controller.read_users = lambda: mock_user
-    trip_controller.read_trips = lambda: mock_trip_json
-
-    # Test init_prompt()
-    prompt = init_prompt()
-    print("Generated Prompt:")
-    print(prompt)
-    response = init_itinerary()
-    reply = view_itinerary()
-    print(response)
-
-    # Restore original methods (optional, good practice if this file is imported elsewhere)
-    user_controller.read_users = original_read_users
-    trip_controller.read_trips = original_read_trips
+    trip_id = "67d1d86f77c03467ef41808d"  # Ensure this is a valid ObjectId
+    
+    print(f"Fetching itinerary for trip ID: {trip_id}\n")
+    
+    try:
+        with app.app_context():  # Ensure the Flask application context is active
+            itinerary_text = view_itinerary(trip_id)
+            print(itinerary_text)
+    except Exception as e:
+        print(f"Error retrieving itinerary: {e}")
 
 if __name__ == "__main__":
     main()
